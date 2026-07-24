@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Hardcodet.Wpf.TaskbarNotification;
+using AgentBar.Input;
 using AgentBar.Models;
 using AgentBar.Rendering;
 using AgentBar.Stores;
@@ -17,10 +18,12 @@ public sealed class TrayController : IDisposable
     private readonly TaskbarIcon _icon = new();
     private readonly SessionStore _sessionStore = new();
     private readonly RequestStore _requestStore = new();
+    private readonly HotKeyCenter _hotKeys = new();
     private readonly PopoverWindow _popover = new();
 
     private IReadOnlyList<Session> _sessions = Array.Empty<Session>();
     private IReadOnlyList<ApprovalRequest> _approvals = Array.Empty<ApprovalRequest>();
+    private DateTime _lastHotkey = DateTime.MinValue;
 
     public void Start()
     {
@@ -33,6 +36,7 @@ public sealed class TrayController : IDisposable
         _requestStore.Changed += OnRequestsChanged;
         _sessionStore.Start();
         _requestStore.Start();
+        ApplyHotKeyState();
     }
 
     private void OnSessionsChanged(IReadOnlyList<Session> sessions)
@@ -51,6 +55,8 @@ public sealed class TrayController : IDisposable
         RefreshPopoverIfVisible();
     }
 
+    // MARK: - Approvals
+
     /// Called by an approval button: record the decision the blocking hook is waiting for.
     private void Answer(ApprovalRequest req, string behavior)
     {
@@ -62,6 +68,34 @@ public sealed class TrayController : IDisposable
         _approvals = _approvals.Where(a => a.FileName != req.FileName).ToList();
         RefreshPopoverIfVisible();
     }
+
+    /// Called by a session row's "Approve in terminal" button (keystroke agents).
+    private void KeystrokeApprove(Session session)
+    {
+        var keys = session.Agent.ApproveKeys;
+        if (keys is not null) KeystrokeApprover.Approve(session, keys);
+    }
+
+    // MARK: - Global Allow/Deny shortcut (opt-in)
+
+    private void ApplyHotKeyState() =>
+        _hotKeys.SetEnabled(Settings.GlobalApprovalShortcut,
+            allow: () => HotkeyAnswer("allow"),
+            deny: () => HotkeyAnswer("deny"));
+
+    /// Answer the newest pending request. Debounced so a held chord can't double-fire.
+    private void HotkeyAnswer(string behavior)
+    {
+        var now = DateTime.UtcNow;
+        if (now - _lastHotkey < TimeSpan.FromSeconds(1)) return;
+        _lastHotkey = now;
+
+        var req = _approvals.FirstOrDefault(); // sorted newest-first; no-op when empty
+        if (req is null) return;
+        Answer(req, behavior);
+    }
+
+    // MARK: - Popover
 
     private void TogglePopover()
     {
@@ -75,18 +109,34 @@ public sealed class TrayController : IDisposable
         // click that lands right after that auto-hide as "close", not "reopen".
         if (DateTime.UtcNow - _popover.LastHidden < TimeSpan.FromMilliseconds(250)) return;
 
-        _popover.Update(_sessions, _approvals, Answer);
+        _popover.Update(_sessions, _approvals, Answer, KeystrokeApprove);
         _popover.ShowNearTray();
     }
 
     private void RefreshPopoverIfVisible()
     {
-        if (_popover.IsVisible) _popover.Update(_sessions, _approvals, Answer);
+        if (_popover.IsVisible) _popover.Update(_sessions, _approvals, Answer, KeystrokeApprove);
     }
 
     private ContextMenu BuildMenu()
     {
         var menu = new ContextMenu();
+
+        var shortcut = new MenuItem
+        {
+            Header = "Global Allow / Deny shortcut (Ctrl+Alt+A / Ctrl+Alt+D)",
+            IsCheckable = true,
+            IsChecked = Settings.GlobalApprovalShortcut,
+            ToolTip = "Allow / deny the newest pending request without opening the popover",
+        };
+        shortcut.Click += (_, _) =>
+        {
+            Settings.GlobalApprovalShortcut = shortcut.IsChecked;
+            ApplyHotKeyState();
+        };
+        menu.Items.Add(shortcut);
+        menu.Items.Add(new Separator());
+
         var quit = new MenuItem { Header = "Quit AgentBar" };
         quit.Click += (_, _) => Application.Current.Shutdown();
         menu.Items.Add(quit);
@@ -97,6 +147,7 @@ public sealed class TrayController : IDisposable
     {
         _sessionStore.Dispose();
         _requestStore.Dispose();
+        _hotKeys.Dispose();
         _icon.Dispose();
     }
 }

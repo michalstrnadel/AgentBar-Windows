@@ -93,6 +93,11 @@
                                 <TextBlock Text="{Binding SubText}" Foreground="#7A7A7A"
                                            FontSize="11" Margin="17,2,0,0"
                                            TextTrimming="CharacterEllipsis" />
+                                <Button Content="⌨ Approve in terminal" Style="{StaticResource Pill}"
+                                        HorizontalAlignment="Left" Margin="17,6,0,0"
+                                        Command="{Binding Keystroke}"
+                                        Visibility="{Binding CanKeystroke, Converter={StaticResource BoolToVis}}"
+                                        ToolTip="Bring the terminal forward and send the approval keystroke (best-effort)" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>

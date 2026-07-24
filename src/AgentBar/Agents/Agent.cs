@@ -9,4 +9,9 @@ public sealed class Agent
     public required string Id { get; init; }
     public required string Name { get; init; }
     public required Color Brand { get; init; }
+
+    /// Virtual-key codes sent to approve a prompt in the agent's own terminal UI, for
+    /// agents with no decision hook. null = keystroke approval not applicable (Claude has
+    /// the native hook path; Cursor/Gemini are observe-only; Antigravity is an IDE).
+    public ushort[]? ApproveKeys { get; init; }
 }

@@ -21,14 +21,16 @@ public partial class PopoverWindow : Window
 
     public void Update(IReadOnlyList<Session> sessions,
                        IReadOnlyList<ApprovalRequest> approvals,
-                       Action<ApprovalRequest, string> onChoose)
+                       Action<ApprovalRequest, string> onChoose,
+                       Action<Session> onKeystroke)
     {
         var approvalRows = approvals.Select(a => ApprovalRow.From(a, onChoose)).ToList();
         Approvals.ItemsSource = approvalRows;
 
         // Don't show a plain session row for a session that has an actionable approval card.
         var pending = approvals.Select(a => a.SessionId).ToHashSet();
-        var sessionRows = sessions.Where(s => !pending.Contains(s.Id)).Select(SessionRow.From).ToList();
+        var sessionRows = sessions.Where(s => !pending.Contains(s.Id))
+                                  .Select(s => SessionRow.From(s, onKeystroke)).ToList();
         List.ItemsSource = sessionRows;
 
         EmptyLabel.Visibility = approvalRows.Count == 0 && sessionRows.Count == 0
@@ -83,7 +85,12 @@ public partial class PopoverWindow : Window
         public string SubText { get; init; } = "";
         public Brush DotBrush { get; init; } = Brushes.Gray;
 
-        public static SessionRow From(Session s)
+        /// A permission-state session for a keystroke agent (Codex/Copilot) has no request
+        /// file, so it gets a best-effort "Approve in terminal" button instead of a card.
+        public bool CanKeystroke { get; init; }
+        public ICommand? Keystroke { get; init; }
+
+        public static SessionRow From(Session s, Action<Session> onKeystroke)
         {
             var branch = s.GitBranch;
             var place = s.Project;
@@ -97,12 +104,16 @@ public partial class PopoverWindow : Window
             var dot = new SolidColorBrush(StatusColors.For(s.State));
             dot.Freeze();
 
+            var canKeystroke = s.State == SessionState.Permission && s.Agent.ApproveKeys is not null;
+
             return new SessionRow
             {
                 AgentName = s.Agent.Name,
                 StateText = StateLabel(s.State),
                 SubText = sub,
                 DotBrush = dot,
+                CanKeystroke = canKeystroke,
+                Keystroke = canKeystroke ? new RelayCommand(_ => onKeystroke(s)) : null,
             };
         }
 

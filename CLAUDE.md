@@ -47,3 +47,6 @@ WPF targets `net8.0-windows` — **cannot build on macOS/Linux**, only edit ther
 - `Rendering/IconRenderer.cs` — tray glyph + shared status palette.
 - `Tray/` — `TrayController` (NotifyIcon), `PopoverWindow` (sessions + approval cards),
   `TrayInterop` (multi-monitor placement), `RelayCommand`.
+- `Input/` — `KeystrokeApprover` + `Keyboard` (SendInput) + `TerminalWindow` (find/focus
+  the agent's terminal via process ancestry), `HotKeyCenter` (global RegisterHotKey).
+- `Stores/Settings.cs` — persisted flags (`~/.agentbar/settings.json`).

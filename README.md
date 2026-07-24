@@ -68,8 +68,11 @@ manually. Node.js must be on `PATH`.
 - **Phase 1 (done):** tray icon, `state.d` watcher, popover session list, Claude hooks.
 - **Phase 2 (done):** approval flow — `requests.d`/`answers.d`, blocking `permission.js`,
   inline mini-diff/command context, Allow/Always/Deny/Defer buttons.
-- **Phase 3:** keystroke auto-approve (`SendInput` + terminal detection), global
-  hotkeys (`RegisterHotKey`), per-agent sprite animation, remaining agent hooks.
+- **Phase 3 (mostly done):** best-effort keystroke auto-approve (`SendInput` + terminal
+  window discovery), opt-in global `Ctrl+Alt+A`/`Ctrl+Alt+D` approval shortcut
+  (`RegisterHotKey`), remaining agent hooks (Codex / Cursor / Gemini). **Per-agent
+  sprite animation is still deferred** — the tray shows a status dot; porting the macOS
+  mascot frames is a separate asset pass.
 - **Phase 4:** installer/packaging, autostart, code signing, update check.
 
 ## Relationship to the macOS app

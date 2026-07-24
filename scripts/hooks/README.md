@@ -18,8 +18,13 @@ never blocks the host agent.
 - `claude/permission.js` — blocking PermissionRequest approval hook. Windows delta:
   app-running probe uses `tasklist` (not `pgrep`), and it handles `SIGINT`/`SIGBREAK`
   (Windows doesn't deliver `SIGTERM`) so a killed hook still cleans up its request file.
+- `codex/notify.js` — Codex notify adapter (`notify = ["node", "<path>"]` in
+  `%USERPROFILE%\.codex\config.toml`). Completion-only; no live "working" signal.
+- `cursor/cursor.js`, `gemini/gemini.js` — CLI hook bridges. Windows delta: `tasklist`
+  liveness + relaunch via the `~/.agentbar/app-path` marker.
 
-## Not yet ported (later phases)
-- `codex/`, `cursor/`, `gemini/`, `copilot/`, `antigravity/` — phase 3.
+## Not hook-driven
+- `copilot/`, `antigravity/` — README only. Copilot uses best-effort keystroke approval
+  from the popover; Antigravity is an IDE (see each dir's README).
 
 Keep these in sync with the macOS repo whenever the state/approval contract changes.
