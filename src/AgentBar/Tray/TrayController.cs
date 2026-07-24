@@ -25,6 +25,9 @@ public sealed class TrayController : IDisposable
     private IReadOnlyList<ApprovalRequest> _approvals = Array.Empty<ApprovalRequest>();
     private DateTime _lastHotkey = DateTime.MinValue;
 
+    private MenuItem _checkItem = null!;
+    private MenuItem _updateItem = null!;
+
     public void Start()
     {
         _icon.ToolTipText = "AgentBar";
@@ -37,6 +40,9 @@ public sealed class TrayController : IDisposable
         _sessionStore.Start();
         _requestStore.Start();
         ApplyHotKeyState();
+
+        UpdateChecker.Shared.Changed += OnUpdateChanged;
+        UpdateChecker.Shared.StartPeriodicChecks();
     }
 
     private void OnSessionsChanged(IReadOnlyList<Session> sessions)
@@ -122,6 +128,16 @@ public sealed class TrayController : IDisposable
     {
         var menu = new ContextMenu();
 
+        _updateItem = new MenuItem { Header = "Update available — Open page", Visibility = Visibility.Collapsed };
+        _updateItem.Click += (_, _) => UpdateChecker.Shared.OpenReleasesPage();
+        menu.Items.Add(_updateItem);
+
+        _checkItem = new MenuItem { Header = "Check for Updates…" };
+        _checkItem.Click += (_, _) => _ = UpdateChecker.Shared.Check(manual: true);
+        menu.Items.Add(_checkItem);
+
+        menu.Items.Add(new Separator());
+
         var shortcut = new MenuItem
         {
             Header = "Global Allow / Deny shortcut (Ctrl+Alt+A / Ctrl+Alt+D)",
@@ -135,12 +151,41 @@ public sealed class TrayController : IDisposable
             ApplyHotKeyState();
         };
         menu.Items.Add(shortcut);
+
+        var autostart = new MenuItem
+        {
+            Header = "Start at login",
+            IsCheckable = true,
+            IsChecked = Autostart.Enabled,
+        };
+        autostart.Click += (_, _) =>
+        {
+            Autostart.SetEnabled(autostart.IsChecked);
+            autostart.IsChecked = Autostart.Enabled; // reflect the actual result
+        };
+        menu.Items.Add(autostart);
+
         menu.Items.Add(new Separator());
 
         var quit = new MenuItem { Header = "Quit AgentBar" };
         quit.Click += (_, _) => Application.Current.Shutdown();
         menu.Items.Add(quit);
         return menu;
+    }
+
+    private void OnUpdateChanged()
+    {
+        var uc = UpdateChecker.Shared;
+        _checkItem.Header = uc.Status switch
+        {
+            UpdateChecker.State.Checking => "Checking for updates…",
+            UpdateChecker.State.UpToDate => "Up to date",
+            UpdateChecker.State.Failed => "Update check failed — Retry",
+            _ => "Check for Updates…",
+        };
+        var available = uc.Status == UpdateChecker.State.Available;
+        _updateItem.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
+        if (available) _updateItem.Header = $"Update to {uc.LatestVersion} — Open page";
     }
 
     public void Dispose()

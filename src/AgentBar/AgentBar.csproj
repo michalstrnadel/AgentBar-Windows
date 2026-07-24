@@ -17,4 +17,11 @@
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
   </ItemGroup>
 
+  <!-- Ship the hook scripts next to the exe; HookInstaller copies them to ~/.agentbar/hooks. -->
+  <ItemGroup>
+    <Content Include="..\..\scripts\hooks\**\*.js"
+             Link="hooks\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

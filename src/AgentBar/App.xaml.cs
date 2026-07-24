@@ -28,6 +28,10 @@ public partial class App : Application
 
         _tray = new TrayController();
         _tray.Start();
+
+        // Idempotent: refresh the bundled hook scripts and wire them into each agent's
+        // config. Runs on a background thread; failures retry next launch.
+        HookInstaller.InstallIfNeeded();
     }
 
     protected override void OnExit(ExitEventArgs e)

@@ -50,3 +50,7 @@ WPF targets `net8.0-windows` — **cannot build on macOS/Linux**, only edit ther
 - `Input/` — `KeystrokeApprover` + `Keyboard` (SendInput) + `TerminalWindow` (find/focus
   the agent's terminal via process ancestry), `HotKeyCenter` (global RegisterHotKey).
 - `Stores/Settings.cs` — persisted flags (`~/.agentbar/settings.json`).
+- `Stores/HookInstaller.cs` — idempotent copy of bundled hooks + wiring into each agent's
+  config (Claude/Codex/Cursor/Gemini); resolves node, never clobbers unparseable configs.
+- `Stores/UpdateChecker.cs` — GitHub-release check (no auto-swap; opens the release page).
+- `Stores/Autostart.cs` — per-user Run-key start-at-login toggle.

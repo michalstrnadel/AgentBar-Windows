@@ -28,18 +28,33 @@ dotnet run --project src/AgentBar          # dev run
 Single-file, self-contained publish (~15 MB, no runtime prerequisite):
 
 ```powershell
-dotnet publish src/AgentBar -c Release -r win-x64 `
-  --self-contained true `
-  -p:PublishSingleFile=true `
-  -o publish
+./build.ps1                    # -> publish/AgentBar.exe (+ publish/hooks/)
 ```
 
-`publish\AgentBar.exe` is the whole app. On first launch it records its own path in
-`%USERPROFILE%\.agentbar\app-path` so the hooks can relaunch it.
+`publish\AgentBar.exe` plus the `publish\hooks\` folder beside it are the whole app. On
+first launch it records its own path in `%USERPROFILE%\.agentbar\app-path` so the hooks
+can relaunch it, and it **auto-installs the hooks** (see below).
 
-## Wiring up Claude Code hooks
+> **Code signing / SmartScreen:** an unsigned exe triggers a SmartScreen warning on
+> first run. Sign `AgentBar.exe` with an Authenticode certificate (`signtool`) before
+> distributing, or users must click "More info → Run anyway".
 
-Point Claude Code at the Windows hooks. In `%USERPROFILE%\.claude\settings.json`
+## Hooks are installed automatically
+
+On every launch the app copies the bundled hook scripts to `%USERPROFILE%\.agentbar\hooks\`
+and wires them into each installed agent's config (idempotent — re-run safe):
+
+- **Claude Code** — `<config>\settings.json`, honoring `CLAUDE_CONFIG_DIR` (plus `~/.claude`).
+- **Codex** — appends a `notify` entry to `~/.codex\config.toml` (only if you have none).
+- **Cursor** — `~/.cursor\hooks.json` (observational events only).
+- **Gemini** — `~/.gemini\settings.json`.
+
+It needs **Node.js on `PATH`** (or at `%ProgramFiles%\nodejs`); without it the Node-based
+hooks are skipped. Agents that aren't installed are left untouched.
+
+### Manual wiring (fallback)
+
+If you'd rather wire Claude Code yourself, in `%USERPROFILE%\.claude\settings.json`
 (honors `CLAUDE_CONFIG_DIR` if set):
 
 ```json
@@ -73,7 +88,11 @@ manually. Node.js must be on `PATH`.
   (`RegisterHotKey`), remaining agent hooks (Codex / Cursor / Gemini). **Per-agent
   sprite animation is still deferred** — the tray shows a status dot; porting the macOS
   mascot frames is a separate asset pass.
-- **Phase 4:** installer/packaging, autostart, code signing, update check.
+- **Phase 4 (mostly done):** auto hook-installer (Node-resolved, config-safe), opt-in
+  **Start at login** (per-user Run key), single-file publish (`build.ps1`), GitHub-release
+  **update check** in the tray menu. Auto-download-and-swap is **deferred** — a running
+  `.exe` can't overwrite itself in place, so the menu opens the release page instead; a
+  proper updater/installer (MSIX or Inno + side-by-side swap) is the remaining work.
 
 ## Relationship to the macOS app
 
