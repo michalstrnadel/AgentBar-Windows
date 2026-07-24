@@ -8,16 +8,15 @@ agents (Claude Code, Codex, Copilot, Cursor, Gemini, Antigravity). C#/.NET 8 + W
 tray via `Hardcodet.NotifyIcon.Wpf`. Node.js hook scripts in `scripts/hooks/` write
 per-session JSON to `%USERPROFILE%\.agentbar\state.d\`; the app watches that folder.
 
-Windows counterpart of the macOS AgentBar. The two repos share **only the on-disk
-contract** (state JSON schema + hook behavior), not code. The state/approval file
-layout under `~/.agentbar` is identical across platforms.
+The `~/.agentbar` state/approval file layout (state JSON schema + hook behavior) is a
+stable on-disk contract the hooks and the app agree on — keep it stable when editing hooks.
 
 ## Build & run (Windows only)
 ```powershell
 dotnet build AgentBar.sln -c Release
 dotnet run --project src/AgentBar
 ```
-WPF targets `net8.0-windows` — **cannot build on macOS/Linux**, only edit there.
+WPF targets `net8.0-windows` — builds and runs on Windows only.
 
 ## Rules
 1. One file, one responsibility. Don't grow a god-object controller.
@@ -26,14 +25,13 @@ WPF targets `net8.0-windows` — **cannot build on macOS/Linux**, only edit ther
 3. Hooks must never block the host agent: async, atomic writes (`tmp` + rename), exit
    fast. Sole exception: `permission.js` blocks while the session already waits on the
    human, and must always time out silently to the normal terminal prompt.
-4. Keep the `~/.agentbar` contract identical to the macOS app. Changing the JSON shape
-   means changing both repos' hooks in lockstep.
+4. Keep the `~/.agentbar` JSON contract stable — the hooks and the app must agree on it.
 5. Adding an agent: entry in `AgentCatalog.All`, artwork, optional hook dir under
    `scripts/hooks/<agent>/`. Nothing else should need touching.
-6. Windows has no LaunchServices: the app writes `~/.agentbar/app-path` at startup and
-   hooks relaunch it from there; liveness is `tasklist`, not `pgrep`.
+6. There's no launch-by-identity on Windows: the app writes `~/.agentbar/app-path` at
+   startup and hooks relaunch it from there; liveness is `tasklist`.
 
-## Layout (mirrors the macOS unit split)
+## Layout
 - `Stores/Paths.cs` — the `~/.agentbar` path contract.
 - `Stores/ProcessUtil.cs` — shared pid liveness probe (`tasklist`-equivalent).
 - `Models/` — `Session`, `SessionState`, `ApprovalRequest` + `ApprovalContext`

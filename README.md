@@ -5,29 +5,23 @@
 ![.NET 8](https://img.shields.io/badge/.NET-8-512BD4)
 ![WPF](https://img.shields.io/badge/UI-WPF%20%2F%20C%23-512BD4)
 ![status: pre-release](https://img.shields.io/badge/status-pre--release-orange)
-[![macOS counterpart](https://img.shields.io/badge/macOS-AgentBar-black)](https://github.com/michalstrnadel/AgentBar)
 
 **One tray icon for all your AI coding agents.**
 
-AgentBar for Windows is a lightweight, native **system-tray** app that shows the live
-state of your AI coding sessions — Claude Code, Codex, Cursor CLI, Gemini CLI, plus
-GitHub Copilot and Google Antigravity. Each agent gets its own animated mascot, and the
-tray always surfaces the session that needs you most: the moment one asks for
-permission, you Allow or Deny it straight from the popover — no terminal switch.
+AgentBar is a lightweight, native Windows **system-tray** app that shows the live state
+of your AI coding sessions — Claude Code, Codex, Cursor CLI, Gemini CLI, plus GitHub
+Copilot and Google Antigravity. Each agent gets its own animated mascot, and the tray
+always surfaces the session that needs you most: the moment one asks for permission, you
+Allow or Deny it straight from the popover — no terminal switch.
 
-It's the Windows counterpart to [AgentBar](https://github.com/michalstrnadel/AgentBar)
-(macOS) and shares the exact same `~/.agentbar` hook protocol — the native UI is written
-from scratch in C#/WPF; the Node.js hooks are the same on both platforms.
-
-> **Pre-release.** Every feature below is implemented, but the C# was authored on macOS
-> (WPF only compiles on Windows) and hasn't been built or run on a real Windows machine
-> yet. First-pass verification is tracked in
+> **Pre-release.** Every feature below is implemented, but the app hasn't been built or
+> run on a real Windows machine yet. First-pass verification is tracked in
 > [issue #1](https://github.com/michalstrnadel/AgentBar-Windows/issues/1) — expect to fix
 > a few things on the first `./build.ps1`.
 
 ## Quick start
 
-Requires the **.NET 8 SDK** and **Node.js** on Windows.
+Requires the **.NET 8 SDK** and **Node.js**.
 
 ```powershell
 git clone https://github.com/michalstrnadel/AgentBar-Windows.git
@@ -75,8 +69,7 @@ That's the whole loop. Details below.
 
 ## Build & publish
 
-WPF targets `net8.0-windows`, so this **only builds on Windows** (it can be edited
-anywhere). `build.ps1` produces a single self-contained exe plus a release zip:
+`build.ps1` produces a single self-contained exe plus a release zip:
 
 ```powershell
 ./build.ps1                    # -> publish/AgentBar.exe  (+ publish/AgentBar-win-x64.zip)
@@ -156,8 +149,7 @@ non-elevated app.
 Tiny Node.js hook scripts write one JSON file per session to `%USERPROFILE%\.agentbar\state.d\`.
 The app watches that folder and renders. No sockets, no daemons, no network. Permission
 approvals use two more folders of the same protocol: the blocking hook writes
-`requests.d\`, the app answers into `answers.d\`. This is the same contract the macOS app
-uses — only the native UI differs.
+`requests.d\`, the app answers into `answers.d\`.
 
 ## Uninstall
 
@@ -171,12 +163,6 @@ rmdir /S /Q "%USERPROFILE%\.agentbar"
 #   %USERPROFILE%\.cursor\hooks.json    — delete entries referencing "\.agentbar\hooks\cursor\"
 #   %USERPROFILE%\.gemini\settings.json — delete hook groups referencing "\.agentbar\hooks\gemini\"
 ```
-
-## Relationship to the macOS app
-
-Separate repo, separate codebase. The two share only the on-disk contract (state JSON
-schema + Node hooks) — [AgentBar](https://github.com/michalstrnadel/AgentBar) for macOS,
-this for Windows. When the contract changes, both repos' hooks change in lockstep.
 
 ## License
 
