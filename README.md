@@ -8,6 +8,10 @@
 
 **One tray icon for all your AI coding agents.**
 
+<p align="center">
+  <img src="docs/assets/social-preview.png" width="840" alt="AgentBar for Windows: the tray popover showing two sessions and a git-push approval with Allow / Always / Deny / Defer">
+</p>
+
 AgentBar is a lightweight, native Windows **system-tray** app that shows the live state
 of your AI coding sessions — Claude Code, Codex, Cursor CLI, Gemini CLI, plus GitHub
 Copilot and Google Antigravity. Each agent gets its own animated mascot, and the tray
