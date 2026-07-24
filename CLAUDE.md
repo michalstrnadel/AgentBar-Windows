@@ -44,7 +44,9 @@ WPF targets `net8.0-windows` — **cannot build on macOS/Linux**, only edit ther
   and orphan answers.
 - `Stores/AnswerWriter.cs` — atomic decision write to `answers.d` (echoes Claude's rule
   suggestion verbatim on "always").
-- `Rendering/IconRenderer.cs` — tray glyph + shared status palette.
+- `Rendering/IconRenderer.cs` — composites a sprite frame + state dot; status palette.
+- `Rendering/SpriteCatalog.cs` — loads embedded per-agent frames / tinted marks.
+- `Tray/IconAnimator.cs` — cycles the top agent's sprite while working (resting otherwise).
 - `Tray/` — `TrayController` (NotifyIcon), `PopoverWindow` (sessions + approval cards),
   `TrayInterop` (multi-monitor placement), `RelayCommand`.
 - `Input/` — `KeystrokeApprover` + `Keyboard` (SendInput) + `TerminalWindow` (find/focus

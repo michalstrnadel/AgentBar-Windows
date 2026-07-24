@@ -20,6 +20,7 @@ public sealed class TrayController : IDisposable
     private readonly RequestStore _requestStore = new();
     private readonly HotKeyCenter _hotKeys = new();
     private readonly PopoverWindow _popover = new();
+    private IconAnimator _animator = null!;
 
     private IReadOnlyList<Session> _sessions = Array.Empty<Session>();
     private IReadOnlyList<ApprovalRequest> _approvals = Array.Empty<ApprovalRequest>();
@@ -31,7 +32,8 @@ public sealed class TrayController : IDisposable
     public void Start()
     {
         _icon.ToolTipText = "AgentBar";
-        _icon.IconSource = IconRenderer.Render(_sessions);
+        _animator = new IconAnimator(img => _icon.IconSource = img);
+        _animator.Update(_sessions);
         _icon.TrayLeftMouseUp += (_, _) => TogglePopover();
         _icon.ContextMenu = BuildMenu();
 
@@ -48,7 +50,7 @@ public sealed class TrayController : IDisposable
     private void OnSessionsChanged(IReadOnlyList<Session> sessions)
     {
         _sessions = sessions;
-        _icon.IconSource = IconRenderer.Render(sessions);
+        _animator.Update(sessions);
         _icon.ToolTipText = sessions.Count == 0
             ? "AgentBar — idle"
             : $"AgentBar — {sessions.Count} active";
@@ -128,8 +130,8 @@ public sealed class TrayController : IDisposable
     {
         var menu = new ContextMenu();
 
-        _updateItem = new MenuItem { Header = "Update available — Open page", Visibility = Visibility.Collapsed };
-        _updateItem.Click += (_, _) => UpdateChecker.Shared.OpenReleasesPage();
+        _updateItem = new MenuItem { Header = "Update available", Visibility = Visibility.Collapsed };
+        _updateItem.Click += (_, _) => _ = UpdateChecker.Shared.InstallAvailable();
         menu.Items.Add(_updateItem);
 
         _checkItem = new MenuItem { Header = "Check for Updates…" };
@@ -183,9 +185,12 @@ public sealed class TrayController : IDisposable
             UpdateChecker.State.Failed => "Update check failed — Retry",
             _ => "Check for Updates…",
         };
-        var available = uc.Status == UpdateChecker.State.Available;
-        _updateItem.Visibility = available ? Visibility.Visible : Visibility.Collapsed;
-        if (available) _updateItem.Header = $"Update to {uc.LatestVersion} — Open page";
+        var showUpdate = uc.Status is UpdateChecker.State.Available or UpdateChecker.State.Downloading;
+        _updateItem.Visibility = showUpdate ? Visibility.Visible : Visibility.Collapsed;
+        _updateItem.IsEnabled = uc.Status == UpdateChecker.State.Available;
+        _updateItem.Header = uc.Status == UpdateChecker.State.Downloading
+            ? $"Downloading {uc.LatestVersion}…"
+            : $"Update to {uc.LatestVersion} — Install & Relaunch";
     }
 
     public void Dispose()
@@ -193,6 +198,7 @@ public sealed class TrayController : IDisposable
         _sessionStore.Dispose();
         _requestStore.Dispose();
         _hotKeys.Dispose();
+        _animator.Dispose();
         _icon.Dispose();
     }
 }

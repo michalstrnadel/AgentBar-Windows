@@ -83,16 +83,15 @@ manually. Node.js must be on `PATH`.
 - **Phase 1 (done):** tray icon, `state.d` watcher, popover session list, Claude hooks.
 - **Phase 2 (done):** approval flow — `requests.d`/`answers.d`, blocking `permission.js`,
   inline mini-diff/command context, Allow/Always/Deny/Defer buttons.
-- **Phase 3 (mostly done):** best-effort keystroke auto-approve (`SendInput` + terminal
-  window discovery), opt-in global `Ctrl+Alt+A`/`Ctrl+Alt+D` approval shortcut
-  (`RegisterHotKey`), remaining agent hooks (Codex / Cursor / Gemini). **Per-agent
-  sprite animation is still deferred** — the tray shows a status dot; porting the macOS
-  mascot frames is a separate asset pass.
-- **Phase 4 (mostly done):** auto hook-installer (Node-resolved, config-safe), opt-in
-  **Start at login** (per-user Run key), single-file publish (`build.ps1`), GitHub-release
-  **update check** in the tray menu. Auto-download-and-swap is **deferred** — a running
-  `.exe` can't overwrite itself in place, so the menu opens the release page instead; a
-  proper updater/installer (MSIX or Inno + side-by-side swap) is the remaining work.
+- **Phase 3 (done):** best-effort keystroke auto-approve (`SendInput` + terminal window
+  discovery), opt-in global `Ctrl+Alt+A`/`Ctrl+Alt+D` approval shortcut (`RegisterHotKey`),
+  remaining agent hooks (Codex / Cursor / Gemini), and **per-agent animated sprites** in
+  the tray (frames embedded from the macOS artwork; a status dot is the no-sprite fallback).
+- **Phase 4 (done):** auto hook-installer (Node-resolved, config-safe), opt-in **Start at
+  login** (per-user Run key), single-file publish (`build.ps1`), and GitHub-release
+  **update check with in-place install** — downloads the release zip and a helper script
+  swaps the files after the app exits, then relaunches. (Installing under `Program Files`
+  needs admin; a portable / user-writable location updates without a prompt.)
 
 ## Relationship to the macOS app
 

@@ -1,0 +1,24 @@
+{
+  "claude": {
+    "frames": 20,
+    "fps": 12.5
+  },
+  "codex": {
+    "frames": 14,
+    "fps": 11
+  },
+  "copilot": {
+    "frames": 16,
+    "fps": 11
+  },
+  "antigravity": {
+    "frames": 16,
+    "fps": 11
+  },
+  "cursor": {
+    "mark": true
+  },
+  "gemini": {
+    "mark": true
+  }
+}

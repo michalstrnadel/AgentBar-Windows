@@ -17,6 +17,12 @@
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
   </ItemGroup>
 
+  <!-- Sprite frames embedded in the assembly (loaded via pack:// URIs), so they travel
+       inside the single-file exe. Extracted from the macOS artwork by scripts/. -->
+  <ItemGroup>
+    <Resource Include="Resources\sprites\**\*.png" />
+  </ItemGroup>
+
   <!-- Ship the hook scripts next to the exe; HookInstaller copies them to ~/.agentbar/hooks. -->
   <ItemGroup>
     <Content Include="..\..\scripts\hooks\**\*.js"
