@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace AgentBar.Agents;
 
-/// The known agents and their brand colours. Colours mirror the macOS Agents.swift table.
+/// The known agents and their brand colours.
 public static class AgentCatalog
 {
     private const ushort VK_RETURN = 0x0D;

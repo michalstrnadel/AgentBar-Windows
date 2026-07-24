@@ -14,7 +14,7 @@ namespace AgentBar.Stores;
 /// configs are only rewritten when the content actually changes). Copies the bundled
 /// hook scripts to ~/.agentbar/hooks/ and wires them into each agent's own hook
 /// mechanism. Never blocks the UI; failures are swallowed and retried next launch.
-/// Windows port of the macOS HookInstaller — same config files, Windows node resolution.
+/// Resolves the node binary from Program Files or PATH before wiring the Node-based hooks.
 public static class HookInstaller
 {
     private static string Home => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

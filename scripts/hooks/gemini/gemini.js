@@ -2,7 +2,7 @@
 // AgentBar bridge for Gemini CLI hooks. Maps Gemini's hook events (read from the
 // stdin payload's hook_event_name) to a per-session state file in
 // ~/.agentbar/state.d/. Observe-only: writes state, emits nothing, exits fast.
-// Windows port: tasklist liveness + app-path relaunch (no pgrep / `open -b`).
+// Windows: tasklist liveness + relaunch via the ~/.agentbar/app-path marker.
 const fs = require("fs"), os = require("os"), path = require("path"), cp = require("child_process");
 
 const AGENT = "gemini";

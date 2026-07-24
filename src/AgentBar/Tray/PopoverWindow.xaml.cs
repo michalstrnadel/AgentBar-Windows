@@ -9,8 +9,8 @@ using AgentBar.Rendering;
 
 namespace AgentBar.Tray;
 
-/// Borderless panel anchored to the bottom-right, near the notification area.
-/// The macOS app uses an NSMenu under the status item; on Windows we render our own.
+/// Borderless panel anchored to the bottom-right, near the notification area —
+/// a custom-rendered surface, not a system context menu.
 public partial class PopoverWindow : Window
 {
     public PopoverWindow() => InitializeComponent();

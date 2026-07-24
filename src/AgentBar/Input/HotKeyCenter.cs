@@ -5,8 +5,8 @@ using System.Windows.Interop;
 namespace AgentBar.Input;
 
 /// System-wide Allow/Deny hotkeys via Win32 RegisterHotKey, delivered to a message-only
-/// window. Windows analogue of the macOS Carbon hotkey center. ⌥⌘A/⌥⌘D on macOS map to
-/// Ctrl+Alt+A / Ctrl+Alt+D here. Fires even when AgentBar isn't focused; needs no special
+/// window, on the global Ctrl+Alt+A (allow) / Ctrl+Alt+D (deny) hotkeys. Fires even when
+/// AgentBar isn't focused; needs no special
 /// permission. Opt-in — the tray menu toggles it.
 public sealed class HotKeyCenter : IDisposable
 {

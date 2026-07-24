@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// Regenerate the embedded sprite PNGs from the AgentBar macOS app's artwork.
-// The macOS repo stores each mascot as a base64 PNG array in Sources/AgentBar/Sprites/*.swift;
+// Regenerate the embedded sprite PNGs from the AgentBar mascot artwork.
+// The artwork source stores each mascot as a base64 PNG array in *Frames.swift files;
 // this decodes them to PNG files under src/AgentBar/Resources/sprites/ (+ manifest.json).
 // Binary data goes file->file on disk.
 //
-//   node scripts/extract-sprites.js <path-to-macos>/Sources/AgentBar/Sprites
+//   node scripts/extract-sprites.js <artwork-source>/Sprites
 const fs = require("fs");
 const path = require("path");
 
 const SRC = process.argv[2];
-if (!SRC) { console.error("usage: node extract-sprites.js <macOS Sprites dir>"); process.exit(1); }
+if (!SRC) { console.error("usage: node extract-sprites.js <Sprites dir>"); process.exit(1); }
 const OUT = path.join(__dirname, "..", "src", "AgentBar", "Resources", "sprites");
 
 const B64 = /"([A-Za-z0-9+/=]{20,})"/g;

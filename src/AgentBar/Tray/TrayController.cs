@@ -11,8 +11,8 @@ using AgentBar.Stores;
 
 namespace AgentBar.Tray;
 
-/// Owns the notification-area icon and the popover. Windows analogue of the macOS
-/// StatusItemController: no main window, no taskbar button, no dock/alt-tab presence.
+/// Owns the notification-area icon and the popover: no main window, no taskbar button,
+/// no alt-tab presence.
 public sealed class TrayController : IDisposable
 {
     private readonly TaskbarIcon _icon = new();

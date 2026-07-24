@@ -5,8 +5,8 @@
 // Deliberate exception to "hooks never block": the session is already waiting on
 // a human, and every failure path (no app, app quits, timeout, junk input, signal,
 // filesystem error) exits silently so the ordinary terminal prompt appears instead.
-// Windows port of the macOS hook: only the "is the app running" probe differs
-// (tasklist instead of pgrep); the ~/.agentbar request/answer contract is identical.
+// The "is the app running" probe uses tasklist; the ~/.agentbar request/answer contract
+// is unchanged.
 // Usage: node permission.js   (PermissionRequest hook JSON on stdin)
 
 const fs = require("fs");

@@ -1,9 +1,9 @@
 # Hooks (Windows)
 
-Windows-adapted copies of the macOS AgentBar hooks. Same `~/.agentbar` JSON contract;
-the only differences are OS-specific:
+The AgentBar hook scripts, Windows-adapted. Same `~/.agentbar` JSON contract; the
+differences are OS-specific:
 
-- **Liveness:** `tasklist /FI "IMAGENAME eq AgentBar.exe"` instead of `pgrep -x AgentBar`.
+- **Liveness:** `tasklist /FI "IMAGENAME eq AgentBar.exe"`.
 - **Relaunch:** read the app path from `%USERPROFILE%\.agentbar\app-path` (written by the
   app on first run) and spawn it, instead of `open -b <bundle-id>`. Idempotent — only
   launches when no instance is running.
@@ -16,7 +16,7 @@ never blocks the host agent.
 - `claude/lifecycle.js` — SessionStart / SessionEnd.
 - `claude/update.js` — prompt / pre / post / stop state.
 - `claude/permission.js` — blocking PermissionRequest approval hook. Windows delta:
-  app-running probe uses `tasklist` (not `pgrep`), and it handles `SIGINT`/`SIGBREAK`
+  app-running probe uses `tasklist`, and it handles `SIGINT`/`SIGBREAK`
   (Windows doesn't deliver `SIGTERM`) so a killed hook still cleans up its request file.
 - `codex/notify.js` — Codex notify adapter (`notify = ["node", "<path>"]` in
   `%USERPROFILE%\.codex\config.toml`). Completion-only; no live "working" signal.
@@ -27,4 +27,4 @@ never blocks the host agent.
 - `copilot/`, `antigravity/` — README only. Copilot uses best-effort keystroke approval
   from the popover; Antigravity is an IDE (see each dir's README).
 
-Keep these in sync with the macOS repo whenever the state/approval contract changes.
+Keep these in sync whenever the `~/.agentbar` state/approval contract changes.

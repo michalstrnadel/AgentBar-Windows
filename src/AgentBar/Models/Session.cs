@@ -6,7 +6,7 @@ namespace AgentBar.Models;
 
 /// One live agent session, decoded from a ~/.agentbar/state.d/*.json file
 /// written by the hook scripts in scripts/hooks/. Parsing is deliberately tolerant
-/// (missing/mistyped fields fall back to defaults) to mirror the macOS JSONSerialization path.
+/// (missing/mistyped fields fall back to defaults).
 public sealed class Session
 {
     public string Id { get; init; } = "";

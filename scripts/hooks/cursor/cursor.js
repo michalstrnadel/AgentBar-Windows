@@ -3,7 +3,7 @@
 // stdin payload's hook_event_name) to a per-session state file in
 // ~/.agentbar/state.d/, the same "folder is the protocol" the app already watches.
 // Observe-only: writes state, emits nothing, exits fast — never affects the agent.
-// Windows port: tasklist liveness + app-path relaunch (no pgrep / `open -b`).
+// Windows: tasklist liveness + relaunch via the ~/.agentbar/app-path marker.
 const fs = require("fs"), os = require("os"), path = require("path"), cp = require("child_process");
 
 const AGENT = "cursor";

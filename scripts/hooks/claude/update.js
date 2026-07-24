@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Claude Code hook -> ~/.agentbar/state.d/<session_id>.json
-// Windows port: byte-for-byte the same state contract as macOS; only term_program
-// detection is Windows-aware (this hook touches no OS-specific process APIs otherwise).
+// Byte-for-byte the same state contract; only term_program detection is Windows-aware
+// (this hook touches no OS-specific process APIs otherwise).
 // Usage: node update.js <prompt|pre|post|stop>   (hook JSON on stdin)
 
 const fs = require("fs");

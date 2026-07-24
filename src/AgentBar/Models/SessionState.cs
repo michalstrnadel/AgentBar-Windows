@@ -18,7 +18,7 @@ public static class SessionStateExtensions
 
     public static bool IsWorking(this SessionState s) => s is SessionState.Thinking or SessionState.Tool;
 
-    /// Sort/priority weight: what the tray should surface first. Mirrors Session.priority (Swift).
+    /// Sort/priority weight: what the tray should surface first.
     public static int Priority(this SessionState s) => s switch
     {
         SessionState.Permission => 3,

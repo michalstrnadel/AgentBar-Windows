@@ -19,7 +19,7 @@ public sealed class Sprite
 /// with their brand colour. Everything is decoded once and cached.
 public static class SpriteCatalog
 {
-    // Frame counts + fps as extracted from the macOS artwork.
+    // Frame counts + fps as extracted from the mascot artwork.
     private static readonly (string Id, int Frames, double Fps)[] Framed =
     {
         ("claude", 20, 12.5),

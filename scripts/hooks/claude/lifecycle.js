@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Claude Code SessionStart/SessionEnd -> seed/remove this session's state file.
-// Windows port of the macOS hook: identical ~/.agentbar JSON contract; only the
-// app liveness check and relaunch differ (no LaunchServices / `open -b` on Windows).
+// Writes the same ~/.agentbar JSON contract; app liveness via tasklist and relaunch via
+// the app-path marker (there's no launch-by-identity on Windows).
 // Usage: node lifecycle.js <start|end>   (hook JSON on stdin)
 
 const fs = require("fs");

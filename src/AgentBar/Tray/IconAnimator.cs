@@ -8,8 +8,7 @@ using AgentBar.Rendering;
 namespace AgentBar.Tray;
 
 /// Drives the tray glyph: animates the top session's agent sprite while it's working,
-/// otherwise shows the resting frame (with a permission/question dot). Windows analogue
-/// of the macOS StatusItemController's render loop, minus the menu-bar text.
+/// otherwise shows the resting frame (with a permission/question dot).
 public sealed class IconAnimator : IDisposable
 {
     private readonly Action<ImageSource> _setIcon;

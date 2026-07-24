@@ -3,8 +3,8 @@ using System.Text.Json.Nodes;
 
 namespace AgentBar.Stores;
 
-/// Tiny persisted settings bag at ~/.agentbar/settings.json. Windows analogue of the
-/// macOS app's UserDefaults. Best-effort: any read/write failure falls back to defaults.
+/// Tiny persisted settings bag at ~/.agentbar/settings.json. Best-effort: any read/write
+/// failure falls back to defaults.
 public static class Settings
 {
     private static string FilePath => Path.Combine(Paths.Root, "settings.json");

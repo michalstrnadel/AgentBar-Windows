@@ -3,8 +3,8 @@ using System.IO;
 
 namespace AgentBar.Stores;
 
-/// Filesystem contract shared verbatim with the hook scripts.
-/// Mirror of the macOS app's ~/.agentbar layout, rooted at %USERPROFILE%.
+/// Filesystem contract shared verbatim with the hook scripts:
+/// the ~/.agentbar layout, rooted at %USERPROFILE%.
 public static class Paths
 {
     public static string Root { get; } =
@@ -15,7 +15,7 @@ public static class Paths
     public static string AnswersDir { get; } = Path.Combine(Root, "answers.d");
 
     /// Written by the app (and, later, the hook installer) so hooks can relaunch it.
-    /// Windows has no LaunchServices/`open -b <bundle>` — this marker is the resolver.
+    /// There's no launch-by-identity on Windows — this marker is how a hook finds the exe.
     public static string AppPathMarker { get; } = Path.Combine(Root, "app-path");
 
     public static void EnsureDirectories()

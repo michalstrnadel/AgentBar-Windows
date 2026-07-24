@@ -7,8 +7,8 @@ using AgentBar.Tray;
 
 namespace AgentBar;
 
-/// Tray-only application entry point. Windows analogue of the macOS app's main.swift:
-/// no main window, no taskbar button, lives entirely in the notification area.
+/// Tray-only application entry point: no main window, no taskbar button, lives entirely
+/// in the notification area.
 public partial class App : Application
 {
     private static Mutex? _instanceLock;
