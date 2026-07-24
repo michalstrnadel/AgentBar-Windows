@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using AgentBar.Models;
 using AgentBar.Rendering;
@@ -18,11 +19,20 @@ public partial class PopoverWindow : Window
     /// a "click to open" apart from the click that just dismissed the popover.
     public DateTime LastHidden { get; private set; } = DateTime.MinValue;
 
-    public void Update(IReadOnlyList<Session> sessions)
+    public void Update(IReadOnlyList<Session> sessions,
+                       IReadOnlyList<ApprovalRequest> approvals,
+                       Action<ApprovalRequest, string> onChoose)
     {
-        var rows = sessions.Select(Row.From).ToList();
-        List.ItemsSource = rows;
-        EmptyLabel.Visibility = rows.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var approvalRows = approvals.Select(a => ApprovalRow.From(a, onChoose)).ToList();
+        Approvals.ItemsSource = approvalRows;
+
+        // Don't show a plain session row for a session that has an actionable approval card.
+        var pending = approvals.Select(a => a.SessionId).ToHashSet();
+        var sessionRows = sessions.Where(s => !pending.Contains(s.Id)).Select(SessionRow.From).ToList();
+        List.ItemsSource = sessionRows;
+
+        EmptyLabel.Visibility = approvalRows.Count == 0 && sessionRows.Count == 0
+            ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public void ShowNearTray()
@@ -63,15 +73,17 @@ public partial class PopoverWindow : Window
         Hide();
     }
 
-    /// View model for one row — keeps display formatting out of the XAML.
-    public sealed class Row
+    // MARK: - Row view models
+
+    /// One live session row.
+    public sealed class SessionRow
     {
         public string AgentName { get; init; } = "";
         public string StateText { get; init; } = "";
         public string SubText { get; init; } = "";
         public Brush DotBrush { get; init; } = Brushes.Gray;
 
-        public static Row From(Session s)
+        public static SessionRow From(Session s)
         {
             var branch = s.GitBranch;
             var place = s.Project;
@@ -85,16 +97,16 @@ public partial class PopoverWindow : Window
             var dot = new SolidColorBrush(StatusColors.For(s.State));
             dot.Freeze();
 
-            return new Row
+            return new SessionRow
             {
                 AgentName = s.Agent.Name,
-                StateText = StateText(s.State),
+                StateText = StateLabel(s.State),
                 SubText = sub,
                 DotBrush = dot,
             };
         }
 
-        private static string StateText(SessionState state) => state switch
+        private static string StateLabel(SessionState state) => state switch
         {
             SessionState.Permission => "needs approval",
             SessionState.Question => "waiting",
@@ -103,5 +115,92 @@ public partial class PopoverWindow : Window
             SessionState.Done => "done",
             _ => "idle",
         };
+    }
+
+    /// One pending approval card, with inline context and decision buttons.
+    public sealed class ApprovalRow
+    {
+        public string Display { get; init; } = "";
+        public IReadOnlyList<ContextLine> ContextLines { get; init; } = Array.Empty<ContextLine>();
+        public bool HasContext => ContextLines.Count > 0;
+        public bool HasRule { get; init; }
+        public string? RuleTooltip { get; init; }
+        public ICommand Choose { get; init; } = null!;
+
+        public static ApprovalRow From(ApprovalRequest req, Action<ApprovalRequest, string> onChoose)
+        {
+            var rule = req.RuleMenuTitle;
+            return new ApprovalRow
+            {
+                Display = req.Display,
+                ContextLines = ContextLine.Build(req.Context),
+                HasRule = rule is not null,
+                RuleTooltip = rule is null ? null : $"Always allow: {req.RuleDescription}",
+                Choose = new RelayCommand(p => onChoose(req, (string)p!)),
+            };
+        }
+    }
+
+    /// One rendered line of approval context (a command line, or a diff +/− line).
+    public sealed class ContextLine
+    {
+        public string Gutter { get; init; } = " ";
+        public Brush GutterBrush { get; init; } = Brushes.Transparent;
+        public string Text { get; init; } = "";
+        public Brush TextBrush { get; init; } = Dim;
+
+        private enum Kind { Plain, Add, Del }
+
+        private static readonly Brush AddBrush = Frozen(0x30, 0xD1, 0x58);
+        private static readonly Brush DelBrush = Frozen(0xFF, 0x6B, 0x6B);
+        private static readonly Brush Bright = Frozen(0xDD, 0xDD, 0xDD);
+        private static readonly Brush Dim = Frozen(0x9A, 0x9A, 0x9A);
+
+        public static IReadOnlyList<ContextLine> Build(ApprovalContext? context)
+        {
+            switch (context)
+            {
+                case ApprovalContext.Bash b:
+                    return Take(Split(b.Command), 5, Kind.Plain);
+                case ApprovalContext.Write w:
+                    return Take(Split(w.Preview), 5, Kind.Plain);
+                case ApprovalContext.Diff d:
+                    var lines = new List<ContextLine>();
+                    lines.AddRange(Take(Split(d.Old), 3, Kind.Del));
+                    lines.AddRange(Take(Split(d.New), 3, Kind.Add));
+                    if (d.More > 0)
+                        lines.Add(Make(Kind.Plain, $"+{d.More} more edit{(d.More == 1 ? "" : "s")}"));
+                    return lines.Count == 0 ? new[] { Make(Kind.Plain, "(no change)") } : lines;
+                default:
+                    return Array.Empty<ContextLine>();
+            }
+        }
+
+        private static string[] Split(string s) => s.Replace("\r", "").Split('\n');
+
+        /// First `max` lines; if truncated, the last becomes an ellipsis marker.
+        private static List<ContextLine> Take(string[] all, int max, Kind kind)
+        {
+            if (all.Length <= max)
+                return all.Select(t => Make(kind, t)).ToList();
+
+            var outp = all.Take(max - 1).Select(t => Make(kind, t)).ToList();
+            outp.Add(Make(Kind.Plain, $"… (+{all.Length - (max - 1)} more lines)"));
+            return outp;
+        }
+
+        private static ContextLine Make(Kind kind, string text) => kind switch
+        {
+            Kind.Add => new ContextLine { Gutter = "+", GutterBrush = AddBrush, Text = text, TextBrush = Bright },
+            Kind.Del => new ContextLine { Gutter = "−", GutterBrush = DelBrush, Text = text, TextBrush = Dim },
+            _ => new ContextLine { Gutter = " ", GutterBrush = Brushes.Transparent, Text = text, TextBrush = Dim },
+        };
+
+        private static Brush Frozen(byte r, byte g, byte b)
+        {
+            var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+            brush.Freeze();
+            return brush;
+        }
     }
 }

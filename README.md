@@ -50,10 +50,15 @@ Point Claude Code at the Windows hooks. In `%USERPROFILE%\.claude\settings.json`
     "UserPromptSubmit": [{ "hooks": [{ "type": "command", "command": "node \"...\\update.js\" prompt" }] }],
     "PreToolUse":  [{ "hooks": [{ "type": "command", "command": "node \"...\\update.js\" pre" }] }],
     "PostToolUse": [{ "hooks": [{ "type": "command", "command": "node \"...\\update.js\" post" }] }],
-    "Stop":        [{ "hooks": [{ "type": "command", "command": "node \"...\\update.js\" stop" }] }]
+    "Stop":        [{ "hooks": [{ "type": "command", "command": "node \"...\\update.js\" stop" }] }],
+    "PermissionRequest": [{ "hooks": [{ "type": "command", "command": "node \"...\\permission.js\"" }] }]
   }
 }
 ```
+
+`PermissionRequest` enables **remote approval** from the tray: the hook blocks while you
+click Allow/Deny in the popover, and always falls back to the normal terminal prompt if
+the app isn't running or you don't answer in time (`AGENTBAR_APPROVAL_TIMEOUT`, default 600s).
 
 An in-app hook installer (writes these entries for you) is planned; for now wire them
 manually. Node.js must be on `PATH`.
@@ -61,8 +66,8 @@ manually. Node.js must be on `PATH`.
 ## Roadmap
 
 - **Phase 1 (done):** tray icon, `state.d` watcher, popover session list, Claude hooks.
-- **Phase 2:** approval flow — `requests.d`/`answers.d`, blocking `permission.js`,
-  inline mini-diff/command context, approve/deny/always buttons.
+- **Phase 2 (done):** approval flow — `requests.d`/`answers.d`, blocking `permission.js`,
+  inline mini-diff/command context, Allow/Always/Deny/Defer buttons.
 - **Phase 3:** keystroke auto-approve (`SendInput` + terminal detection), global
   hotkeys (`RegisterHotKey`), per-agent sprite animation, remaining agent hooks.
 - **Phase 4:** installer/packaging, autostart, code signing, update check.

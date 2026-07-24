@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -59,7 +58,7 @@ public sealed class SessionStore : IDisposable
             var s = Session.FromFile(file);
             if (s is null) continue;
             // Prune: the owning agent process is gone, or the file is ancient (24h).
-            var dead = s.Pid > 0 && !ProcessAlive(s.Pid);
+            var dead = s.Pid > 0 && !ProcessUtil.IsAlive(s.Pid);
             var stale = s.Ts > 0 && now - s.Ts > 86_400;
             if (dead || stale) { TryDelete(file); continue; }
             if (!s.Started) continue; // opened but never used: stays out of the popover
@@ -78,12 +77,6 @@ public sealed class SessionStore : IDisposable
         if (snapshot.SequenceEqual(_lastSnapshot)) return;
         _lastSnapshot = snapshot;
         Changed?.Invoke(sessions);
-    }
-
-    private static bool ProcessAlive(int pid)
-    {
-        try { using var _ = Process.GetProcessById(pid); return true; }
-        catch { return false; } // ArgumentException: no such process
     }
 
     private static void TryDelete(string path)

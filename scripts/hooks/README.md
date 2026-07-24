@@ -15,9 +15,11 @@ never blocks the host agent.
 ## Ported so far
 - `claude/lifecycle.js` — SessionStart / SessionEnd.
 - `claude/update.js` — prompt / pre / post / stop state.
+- `claude/permission.js` — blocking PermissionRequest approval hook. Windows delta:
+  app-running probe uses `tasklist` (not `pgrep`), and it handles `SIGINT`/`SIGBREAK`
+  (Windows doesn't deliver `SIGTERM`) so a killed hook still cleans up its request file.
 
 ## Not yet ported (later phases)
-- `claude/permission.js` — blocking approval hook (phase 2, with the approval UI).
 - `codex/`, `cursor/`, `gemini/`, `copilot/`, `antigravity/` — phase 3.
 
 Keep these in sync with the macOS repo whenever the state/approval contract changes.

@@ -35,8 +35,15 @@ WPF targets `net8.0-windows` — **cannot build on macOS/Linux**, only edit ther
 
 ## Layout (mirrors the macOS unit split)
 - `Stores/Paths.cs` — the `~/.agentbar` path contract.
-- `Models/` — `Session`, `SessionState` (POCO + tolerant JSON parse).
+- `Stores/ProcessUtil.cs` — shared pid liveness probe (`tasklist`-equivalent).
+- `Models/` — `Session`, `SessionState`, `ApprovalRequest` + `ApprovalContext`
+  (POCO + tolerant JSON parse).
 - `Agents/` — agent catalog + brand colours.
-- `Stores/SessionStore.cs` — `FileSystemWatcher` + 2s poll, pruning, snapshot-diff.
+- `Stores/SessionStore.cs` — `state.d` watcher (`FileSystemWatcher` + 2s poll, prune, diff).
+- `Stores/RequestStore.cs` — `requests.d` watcher; prunes dead-hook / expired requests
+  and orphan answers.
+- `Stores/AnswerWriter.cs` — atomic decision write to `answers.d` (echoes Claude's rule
+  suggestion verbatim on "always").
 - `Rendering/IconRenderer.cs` — tray glyph + shared status palette.
-- `Tray/` — `TrayController` (NotifyIcon) + `PopoverWindow`.
+- `Tray/` — `TrayController` (NotifyIcon), `PopoverWindow` (sessions + approval cards),
+  `TrayInterop` (multi-monitor placement), `RelayCommand`.
