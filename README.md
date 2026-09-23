@@ -1,4 +1,4 @@
-# <img src="docs/assets/app-icon.png" width="42" alt="" align="top"> AgentBar for Windows
+# <img src="docs/assets/app-icon.png?v=2026-09-23" width="42" alt="" align="top"> AgentBar for Windows
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D6)
@@ -9,7 +9,7 @@
 **One tray icon for all your AI coding agents.**
 
 <p align="center">
-  <img src="docs/assets/social-preview.png" width="840" alt="AgentBar for Windows: the tray popover showing two sessions and a git-push approval with Allow / Always / Deny / Defer">
+  <img src="docs/assets/social-preview.png?v=2026-09-23" width="840" alt="AgentBar for Windows: the tray popover showing two sessions and a git-push approval with Allow / Always / Deny / Defer">
 </p>
 
 AgentBar is a lightweight, native Windows **system-tray** app that shows the live state
